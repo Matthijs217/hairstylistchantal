@@ -3,7 +3,7 @@ html {
      Colors
      ================== */
   --color-main: #E8DCC6;
-  --color-secondary: #FAF6EE;
+  --color-secondary: #F3EDE0;
   --color-tertiary: #A8A298;
   --color-accent: #4D5B48;
   --color-white: #ffffff;
@@ -88,3 +88,11 @@ html {
   padding: 0;
 }
 
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  overflow-x: hidden;
+}
