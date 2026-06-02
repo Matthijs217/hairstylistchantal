@@ -254,12 +254,36 @@ const navLinks = [
   }
 </style>
 
-<script>
+<script is:inline>
   const details = document.querySelector('.nav-mobile');
 
   document.querySelectorAll('.menu-list a, .menu-cta').forEach((link) => {
     link.addEventListener('click', () => {
       if (details) details.removeAttribute('open');
     });
+  });
+
+  details?.addEventListener('toggle', () => {
+    if (details.open) {
+      const firstLink = details.querySelector('.menu-list a');
+      firstLink?.focus();
+    }
+  });
+
+  // AI HULP
+  details?.addEventListener('keydown', (e) => {
+    if (!details.open || e.key !== 'Tab') return;
+
+    const focusable = [...details.querySelectorAll('summary, a')];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   });
 </script>
