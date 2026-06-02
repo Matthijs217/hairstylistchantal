@@ -13,7 +13,7 @@ const navLinks = [
 
 <header>
   <nav aria-label="Hoofdnavigatie">
-    <ul class="nav-left" aria-hidden="true">
+    <ul class="nav-left">
       <li><a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>Home</a></li>
       <li><a href="/diensten" aria-current={currentPath === '/diensten' ? 'page' : undefined}>Diensten</a></li>
       <li><a href="/over" aria-current={currentPath === '/over' ? 'page' : undefined}>Over</a></li>
@@ -25,14 +25,14 @@ const navLinks = [
       <span class="logo-sub" aria-hidden="true">Hairstyling</span>
     </a>
 
-    <ul class="nav-right" aria-hidden="true">
+    <ul class="nav-right">
       <li><a href="/reviews" aria-current={currentPath === '/reviews' ? 'page' : undefined}>Reviews</a></li>
       <li><a href="/contact" aria-current={currentPath === '/contact' ? 'page' : undefined}>Contact</a></li>
       <li><a href="/afspraak" class="btn-afspraak" aria-current={currentPath === '/afspraak' ? 'page' : undefined}>Afspraak</a></li>
     </ul>
 
     <details class="nav-mobile">
-      <summary class="hamburger">
+      <summary class="hamburger" aria-label="Menu openen">
         <span class="bar" aria-hidden="true"></span>
         <span class="bar" aria-hidden="true"></span>
         <span class="bar" aria-hidden="true"></span>
@@ -130,7 +130,8 @@ const navLinks = [
     font-size: var(--font-size-muted);
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--color-tertiary);
+    color: var(--color-title);
+    opacity: 0.7;
     line-height: 1.5;
   }
 
