@@ -1,0 +1,265 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/diensten', label: 'Diensten' },
+  { href: '/over', label: 'Over' },
+  { href: '/galerij', label: 'Galerij' },
+  { href: '/reviews', label: 'Reviews' },
+  { href: '/contact', label: 'Contact' },
+];
+---
+
+<header>
+  <nav aria-label="Hoofdnavigatie">
+    <ul class="nav-left" aria-hidden="true">
+      <li><a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>Home</a></li>
+      <li><a href="/diensten" aria-current={currentPath === '/diensten' ? 'page' : undefined}>Diensten</a></li>
+      <li><a href="/over" aria-current={currentPath === '/over' ? 'page' : undefined}>Over</a></li>
+      <li><a href="/galerij" aria-current={currentPath === '/galerij' ? 'page' : undefined}>Galerij</a></li>
+    </ul>
+
+    <a href="/" class="logo" aria-label="Chantal Hairstyling, naar de homepage">
+      <span class="logo-name" aria-hidden="true">Chantal</span>
+      <span class="logo-sub" aria-hidden="true">Hairstyling</span>
+    </a>
+
+    <ul class="nav-right" aria-hidden="true">
+      <li><a href="/reviews" aria-current={currentPath === '/reviews' ? 'page' : undefined}>Reviews</a></li>
+      <li><a href="/contact" aria-current={currentPath === '/contact' ? 'page' : undefined}>Contact</a></li>
+      <li><a href="/afspraak" class="btn-afspraak" aria-current={currentPath === '/afspraak' ? 'page' : undefined}>Afspraak</a></li>
+    </ul>
+
+    <details class="nav-mobile">
+      <summary class="hamburger">
+        <span class="bar" aria-hidden="true"></span>
+        <span class="bar" aria-hidden="true"></span>
+        <span class="bar" aria-hidden="true"></span>
+      </summary>
+
+      <div class="menu-panel">
+        <ul class="menu-list">
+          {navLinks.map(({ href, label }) => (
+            <li>
+              <a href={href} aria-current={currentPath === href ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a href="/afspraak" class="btn-afspraak menu-cta">Afspraak</a>
+      </div>
+    </details>
+  </nav>
+</header>
+
+<style>
+  header {
+    background-color: var(--color-secondary);
+    border-bottom: var(--border-width) solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    padding-inline: var(--space-8);
+    padding-block: var(--space-5);
+    gap: var(--space-8);
+  }
+
+  ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    list-style: none;
+    flex: 1;
+  }
+
+  .nav-right {
+    justify-content: flex-end;
+  }
+
+  a {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: var(--border-width) solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  a:hover,
+  a[aria-current="page"] {
+    color: var(--color-title);
+    border-bottom-color: var(--color-title);
+  }
+
+  /* ── Logo ── */
+  .logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    border-bottom: none;
+  }
+
+  .logo:hover { 
+    border-bottom: none; 
+  }
+
+  .logo-name {
+    font-size: var(--font-size-heading-xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1.1;
+  }
+
+  .logo-sub {
+    font-size: var(--font-size-muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-tertiary);
+    line-height: 1.5;
+  }
+
+  /* ── Afspraak knop ── */
+  .btn-afspraak {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-white);
+    background-color: var(--color-accent);
+    padding: var(--space-2) var(--space-5);
+    border-radius: 9999px;
+    border-bottom: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn-afspraak:hover {
+    opacity: 0.85;
+    border-bottom: none;
+    color: var(--color-white);
+  }
+
+  /* ── Mobile nav ── */
+  .nav-mobile {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    cursor: pointer;
+    padding: var(--space-2);
+    list-style: none;
+    position: relative;
+    z-index: 200;
+  }
+
+  .bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: var(--color-title);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-origin: center;
+  }
+
+  details[open] .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  details[open] .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  details[open] .bar:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+  /* ── Menu panel ── */
+  .menu-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-inline: var(--space-8);
+    padding-block: var(--space-12);
+    background-color: var(--color-secondary);
+    border-left: var(--border-width) solid var(--color-border);
+  }
+
+  .menu-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    list-style: none;
+    flex: unset;
+  }
+
+  .menu-list a {
+    font-size: var(--font-size-heading-s);
+    letter-spacing: 0.15em;
+    border-bottom-color: transparent;
+  }
+
+  .menu-list a:hover,
+  .menu-list a[aria-current="page"] {
+    border-bottom-color: var(--color-title);
+  }
+
+  .menu-cta {
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+    padding-block: var(--space-4);
+  }
+
+  /* ── Reduced motion toegankelijkheid ── */
+  @media (prefers-reduced-motion: reduce) {
+    .bar,
+    a,
+    .btn-afspraak {
+      transition: none;
+    }
+  }
+
+  /* ── Breakpoints ── */
+  @media (max-width: 800px) {
+    nav {
+      justify-content: center;
+      position: relative;
+    }
+
+    nav > ul {
+      display: none;
+    }
+
+    .nav-mobile {
+      display: block;
+      position: absolute;
+      right: var(--space-6);
+    }
+  }
+</style>
+
+<script>
+  const details = document.querySelector('.nav-mobile');
+
+  document.querySelectorAll('.menu-list a, .menu-cta').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (details) details.removeAttribute('open');
+    });
+  });
+</script>
