@@ -1,0 +1,294 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { sanityClient } from '../lib/sanity.js';
+
+interface Recensie {
+  _id: string;
+  naam: string;
+  tekst: string;
+  sterren: number;
+  bron: 'google' | 'treatwell';
+  datum: string | null;
+}
+
+const recensies = await sanityClient.fetch<Recensie[]>(`
+  *[_type == "recensie"] | order(datum desc) {
+    _id, naam, tekst, sterren, bron, datum
+  }
+`);
+
+function sterrenLabel(n: number) {
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+function formatDatum(datum: string | null) {
+  if (!datum) return null;
+  return new Date(datum).toLocaleDateString('nl-NL', {
+    year: 'numeric',
+    month: 'long',
+  });
+}
+---
+
+<Layout
+  title="Reviews"
+  description="Lees wat klanten zeggen over Hairstylist Chantal Oosterlaken in Broek in Waterland. Echte ervaringen van tevreden klanten."
+>
+
+  <section class="reviews-hero">
+    <div class="reviews-hero-content">
+      <p class="label">wat klanten zeggen ~</p>
+      <h1 class="titel">Reviews</h1>
+    </div>
+  </section>
+
+  <section class="reviews">
+    <div class="reviews-content">
+
+      {recensies.length > 0 ? (
+        <ul class="reviews-grid">
+          {recensies.map(({ naam, tekst, sterren, bron, datum }) => (
+            <li class="review-card">
+              <div class="review-header">
+                <div class="review-avatar" aria-hidden="true">
+                  {naam.charAt(0).toUpperCase()}
+                </div>
+                <div class="review-meta">
+                  <p class="review-naam">{naam}</p>
+                  {datum && <p class="review-datum">{formatDatum(datum)}</p>}
+                </div>
+                <span class={`review-bron review-bron--${bron}`} aria-label={bron === 'google' ? 'Google review' : 'Treatwell review'}>
+                  {bron === 'google' ? 'G' : 'T'}
+                </span>
+              </div>
+              <p class="review-sterren" aria-label={`${sterren} van de 5 sterren`}>
+                {sterrenLabel(sterren)}
+              </p>
+              <p class="review-tekst">"{tekst}"</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="geen-reviews">Er zijn nog geen reviews toegevoegd.</p>
+      )}
+
+      <div class="reviews-cta">
+        <p class="reviews-cta-tekst">Zelf een review achterlaten?</p>
+        <a
+          href="https://maps.app.goo.gl/wJcjPiJYuJGLZqR48"
+          class="btn-google"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Schrijf een Google review</a>
+      </div>
+
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  /* ── Hero ── */
+  .reviews-hero {
+    padding-block: var(--space-8);
+    padding-inline: var(--space-8);
+  }
+
+  .reviews-hero-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-2);
+  }
+
+  .label {
+    font-family: var(--font-secondary);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--color-text);
+  }
+
+  .titel {
+    font-size: var(--font-size-heading-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1;
+  }
+
+  .titel::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background-color: var(--color-tertiary);
+    margin: var(--space-4) auto 0;
+  }
+
+  /* ── Grid ── */
+  .reviews {
+    background-color: var(--color-main);
+    padding-block: var(--space-16);
+    padding-inline: var(--space-8);
+  }
+
+  .reviews-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .reviews-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ── Card ── */
+  .review-card {
+    background-color: var(--color-secondary);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .review-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background-color: var(--color-tertiary);
+    color: var(--color-white);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-body);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .review-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .review-naam {
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-body);
+    color: var(--color-title);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .review-datum {
+    font-size: var(--font-size-muted);
+    color: var(--color-text);
+    opacity: 0.7;
+  }
+
+  .review-bron {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 9999px;
+    font-weight: var(--font-weight-bold);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .review-bron--google {
+    background-color: #4285f4;
+    color: #fff;
+  }
+
+  .review-bron--treatwell {
+    background-color: #00b0b9;
+    color: #fff;
+  }
+
+  .review-sterren {
+    font-size: 1.1rem;
+    color: #f5a623;
+    letter-spacing: 0.05em;
+  }
+
+  .review-tekst {
+    font-family: var(--font-tertiary);
+    font-size: var(--font-size-body);
+    font-style: italic;
+    color: var(--color-text);
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  /* ── Geen reviews ── */
+  .geen-reviews {
+    text-align: center;
+    color: var(--color-text);
+    font-style: italic;
+  }
+
+  /* ── CTA ── */
+  .reviews-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .reviews-cta-tekst {
+    font-family: var(--font-tertiary);
+    font-style: italic;
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+  }
+
+  .btn-google {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    text-decoration: none;
+    border: var(--border-width) solid var(--color-title);
+    padding: var(--space-3) var(--space-8);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .btn-google:hover {
+    background-color: var(--color-title);
+    color: var(--color-white);
+  }
+</style>

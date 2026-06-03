@@ -32,7 +32,10 @@ const pageTitle = title === 'Hairstylist Chantal' ? title : `${title} | Hairstyl
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content="website" />
 		<meta property="og:locale" content="nl_NL" />
-		<script src="https://widget.treatwell.nl/common/venue-menu/javascript/widget-button.js?v1" is:inline></script>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&display=swap" media="print" onload="this.media='all'" />
+		<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&display=swap" /></noscript>
 	</head>
 	<body>
 		<Header />
@@ -48,6 +51,7 @@ const pageTitle = title === 'Hairstylist Chantal' ? title : `${title} | Hairstyl
 			rel="noopener noreferrer"
 			aria-label="Maak een afspraak"
 		>Afspraak</a>
+		<script src="https://widget.treatwell.nl/common/venue-menu/javascript/widget-button.js?v1" defer is:inline></script>
 		<script is:inline>
 			document.querySelectorAll('[data-treatwell-booking]').forEach((btn) => {
 				btn.addEventListener('click', (e) => {
@@ -64,6 +68,7 @@ const pageTitle = title === 'Hairstylist Chantal' ? title : `${title} | Hairstyl
 	body {
 		margin: 0;
 		width: 100%;
+		font-display: swap;
 	}
 
 	body {

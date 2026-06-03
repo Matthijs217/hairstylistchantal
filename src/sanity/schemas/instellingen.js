@@ -5,6 +5,17 @@ export default {
   __experimental_actions: ['update', 'publish'],
   fields: [
     {
+      name: 'telefoon',
+      title: 'Telefoonnummer',
+      type: 'string',
+      description: 'Bijv. +31 6 12 34 56 78',
+    },
+    {
+      name: 'email',
+      title: 'E-mailadres',
+      type: 'string',
+    },
+    {
       name: 'openingstijden',
       title: 'Openingstijden',
       type: 'array',

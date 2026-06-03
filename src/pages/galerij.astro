@@ -1,0 +1,227 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { sanityClient, urlFor } from '../lib/sanity.js';
+
+interface Foto {
+  afbeelding: object;
+  alt: string;
+}
+
+const fotos = await sanityClient.fetch<Foto[]>(`
+  *[_type == "foto"] | order(datum desc) {
+    afbeelding,
+    alt
+  }
+`);
+
+const BATCH = 10;
+---
+
+<Layout
+  title="Galerij"
+  description="Bekijk het werk van Hairstylist Chantal. Kapsels, kleur en stylingen uit de salon in Broek in Waterland."
+>
+
+  <section class="galerij-hero">
+    <div class="galerij-hero-content">
+      <p class="label">recent werk ~</p>
+      <h1 class="titel">Galerij</h1>
+    </div>
+  </section>
+
+  <section class="galerij">
+    <div class="galerij-content">
+
+      <ul class="galerij-grid" id="galerij-grid">
+        {fotos.map(({ afbeelding, alt }, i) => (
+          <li class="galerij-item" data-index={i} hidden={i >= BATCH || undefined}>
+            <img
+              src={urlFor(afbeelding).width(400).height(400).fit('crop').auto('format').quality(80).url()}
+              srcset={[
+                urlFor(afbeelding).width(300).height(300).fit('crop').auto('format').quality(80).url() + ' 300w',
+                urlFor(afbeelding).width(400).height(400).fit('crop').auto('format').quality(80).url() + ' 400w',
+                urlFor(afbeelding).width(600).height(600).fit('crop').auto('format').quality(80).url() + ' 600w',
+              ].join(', ')}
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              alt={alt}
+              width="400"
+              height="400"
+              loading={i < BATCH ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+            />
+          </li>
+        ))}
+      </ul>
+
+      {fotos.length > BATCH && (
+        <div class="meer-wrapper" id="meer-wrapper">
+          <button class="btn-meer" id="btn-meer" type="button">
+            Meer laden
+            <span class="teller" id="teller">({BATCH} / {fotos.length})</span>
+          </button>
+        </div>
+      )}
+
+    </div>
+  </section>
+
+</Layout>
+
+<script is:inline>
+  const BATCH = 10;
+  const grid = document.getElementById('galerij-grid');
+  const btn = document.getElementById('btn-meer');
+  const teller = document.getElementById('teller');
+  const wrapper = document.getElementById('meer-wrapper');
+
+  if (!grid || !btn) return;
+
+  const items = [...grid.querySelectorAll('[data-index]')];
+  const total = items.length;
+  let shown = BATCH;
+
+  btn.addEventListener('click', () => {
+    const next = Math.min(shown + BATCH, total);
+    for (let i = shown; i < next; i++) {
+      items[i].removeAttribute('hidden');
+    }
+    shown = next;
+    teller.textContent = `(${shown} / ${total})`;
+
+    if (shown >= total) {
+      wrapper.remove();
+    }
+  });
+</script>
+
+<style>
+  /* ── Hero ── */
+  .galerij-hero {
+    padding-block: var(--space-8);
+    padding-inline: var(--space-8);
+  }
+
+  .galerij-hero-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-2);
+  }
+
+  .label {
+    font-family: var(--font-secondary);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--color-text);
+  }
+
+  .titel {
+    font-size: var(--font-size-heading-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1;
+  }
+
+  .titel::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background-color: var(--color-tertiary);
+    margin: var(--space-4) auto 0;
+  }
+
+  /* ── Grid ── */
+  .galerij {
+    background-color: var(--color-main);
+    padding-block: var(--space-16);
+    padding-inline: var(--space-8);
+  }
+
+  .galerij-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .galerij-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .galerij-item {
+    aspect-ratio: 1;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    border: var(--border-width) solid var(--color-border);
+  }
+
+  .galerij-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .galerij-item:hover img {
+    transform: scale(1.04);
+  }
+
+  /* ── Meer laden ── */
+  .meer-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .btn-meer {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    background: none;
+    border: var(--border-width) solid var(--color-title);
+    padding: var(--space-3) var(--space-8);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .btn-meer:hover {
+    background-color: var(--color-title);
+    color: var(--color-white);
+  }
+
+  .teller {
+    font-weight: var(--font-weight-regular);
+    opacity: 0.6;
+  }
+</style>

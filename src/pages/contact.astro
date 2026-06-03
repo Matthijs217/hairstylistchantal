@@ -1,0 +1,503 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { sanityClient } from '../lib/sanity.js';
+
+interface Openingstijd {
+  dag: string;
+  tijd: string;
+}
+
+interface Instellingen {
+  telefoon: string | null;
+  email: string | null;
+  openingstijden: Openingstijd[] | null;
+}
+
+const instellingen = await sanityClient.fetch<Instellingen | null>(`
+  *[_type == "instellingen" && _id == "instellingen"][0] {
+    telefoon, email, openingstijden
+  }
+`);
+
+const telefoon = instellingen?.telefoon ?? '06 27920995';
+const email    = instellingen?.email    ?? 'info@hairstylistchantal.nl';
+
+const fallbackTijden: Openingstijd[] = [
+  { dag: 'Maandag',   tijd: 'Gesloten' },
+  { dag: 'Dinsdag',   tijd: '09:00 – 18:00' },
+  { dag: 'Woensdag',  tijd: '09:00 – 18:00' },
+  { dag: 'Donderdag', tijd: '09:00 – 20:00' },
+  { dag: 'Vrijdag',   tijd: '09:00 – 18:00' },
+  { dag: 'Zaterdag',  tijd: '09:00 – 17:00' },
+  { dag: 'Zondag',    tijd: 'Gesloten' },
+];
+
+const openingstijden = instellingen?.openingstijden?.length
+  ? instellingen.openingstijden
+  : fallbackTijden;
+
+---
+
+<Layout
+  title="Contact"
+  description="Neem contact op met Hairstylist Chantal Oosterlaken in Broek in Waterland. Stuur een bericht of bel direct."
+>
+
+  <section class="contact-hero">
+    <div class="contact-hero-content">
+      <p class="label">in contact komen ~</p>
+      <h1 class="titel">Contact</h1>
+    </div>
+  </section>
+
+  <section class="contact">
+    <div class="contact-content">
+
+      <!-- ── Links: info ── -->
+      <div class="contact-info">
+        <div class="info-blok">
+          <p class="info-label">Bezoekadres</p>
+          <p class="info-waarde">Noordmeer 2<br />Broek in Waterland</p>
+        </div>
+
+        {email && (
+          <div class="info-blok">
+            <p class="info-label">E-mail</p>
+            <a href={`mailto:${email}`} class="info-link">{email}</a>
+          </div>
+        )}
+
+        {telefoon && (
+          <div class="info-blok">
+            <p class="info-label">Telefoon</p>
+            <a href={`tel:${telefoon.replace(/\s/g, '')}`} class="info-link">{telefoon}</a>
+          </div>
+        )}
+
+        <div class="info-blok">
+          <p class="info-label">Openingstijden</p>
+          <dl class="openingstijden">
+            {openingstijden.map(({ dag, tijd }) => (
+              <>
+                <dt>{dag}</dt>
+                <dd class={tijd === 'Gesloten' ? 'gesloten' : ''}>{tijd}</dd>
+              </>
+            ))}
+          </dl>
+        </div>
+
+        <a
+          href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/"
+          class="btn-afspraak"
+          data-treatwell-booking
+          target="_blank"
+          rel="noopener noreferrer"
+        >Afspraak maken</a>
+      </div>
+
+      <!-- ── Rechts: formulier ── -->
+      <div class="contact-form-wrapper">
+        <form
+          id="contact-form"
+          class="contact-form"
+          novalidate
+        >
+          <input class="honeypot" type="text" name="bedrijf" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+          <div class="form-veld">
+            <label for="naam">Naam <span aria-hidden="true">*</span></label>
+            <input
+              type="text"
+              id="naam"
+              name="naam"
+              autocomplete="name"
+              required
+              placeholder="Jouw naam"
+            />
+          </div>
+
+          <div class="form-veld">
+            <label for="email-veld">E-mail <span aria-hidden="true">*</span></label>
+            <input
+              type="email"
+              id="email-veld"
+              name="email"
+              autocomplete="email"
+              required
+              placeholder="jouw@email.nl"
+            />
+          </div>
+
+          <div class="form-veld">
+            <label for="telefoon">Telefoon</label>
+            <input
+              type="tel"
+              id="telefoon"
+              name="telefoon"
+              autocomplete="tel"
+              placeholder="+31 6 12 34 56 78"
+            />
+          </div>
+
+          <div class="form-veld">
+            <label for="bericht">Bericht <span aria-hidden="true">*</span></label>
+            <textarea
+              id="bericht"
+              name="bericht"
+              rows="5"
+              required
+              placeholder="Stel je vraag of laat een berichtje achter..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn-verstuur">
+            <span class="btn-tekst">Versturen</span>
+            <span class="btn-loading" aria-hidden="true" hidden>Bezig...</span>
+          </button>
+        </form>
+
+        <div class="form-succes" id="form-succes" hidden>
+          <p class="succes-titel">Bericht verzonden!</p>
+          <p class="succes-tekst">Bedankt voor je bericht. Chantal neemt zo snel mogelijk contact met je op.</p>
+        </div>
+
+        <div class="form-fout" id="form-fout" hidden>
+          <p>Er ging iets mis. Probeer het opnieuw of stuur een e-mail naar <a href={`mailto:${email}`}>{email}</a>.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</Layout>
+
+<script is:inline>
+  const form = document.getElementById('contact-form');
+  const succes = document.getElementById('form-succes');
+  const fout = document.getElementById('form-fout');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = form.querySelector('.btn-verstuur');
+    const tekst = btn.querySelector('.btn-tekst');
+    const loading = btn.querySelector('.btn-loading');
+
+    btn.disabled = true;
+    tekst.hidden = true;
+    loading.hidden = false;
+    fout.hidden = true;
+
+    const fd = new FormData(form);
+    const payload = Object.fromEntries(fd.entries());
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        form.hidden = true;
+        succes.hidden = false;
+      } else {
+        throw new Error('server error');
+      }
+    } catch {
+      fout.hidden = false;
+      btn.disabled = false;
+      tekst.hidden = false;
+      loading.hidden = true;
+    }
+  });
+</script>
+
+<style>
+  /* ── Hero ── */
+  .contact-hero {
+    padding-block: var(--space-8);
+    padding-inline: var(--space-8);
+  }
+
+  .contact-hero-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-2);
+  }
+
+  .label {
+    font-family: var(--font-secondary);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--color-text);
+  }
+
+  .titel {
+    font-size: var(--font-size-heading-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1;
+  }
+
+  .titel::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background-color: var(--color-tertiary);
+    margin: var(--space-4) auto 0;
+  }
+
+  /* ── Layout ── */
+  .contact {
+    background-color: var(--color-main);
+    padding-block: var(--space-16);
+    padding-inline: var(--space-8);
+  }
+
+  .contact-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: start;
+
+    @media (min-width: 800px) {
+      grid-template-columns: 280px 1fr;
+      gap: var(--space-16);
+    }
+
+    @media (min-width: 1100px) {
+      grid-template-columns: 320px 1fr;
+    }
+  }
+
+  /* ── Info kolom ── */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .info-blok {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .info-label {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-tertiary);
+  }
+
+  .info-waarde {
+    font-size: var(--font-size-body);
+    color: var(--color-title);
+    line-height: 1.6;
+  }
+
+  .info-link {
+    font-size: var(--font-size-body);
+    color: var(--color-title);
+    text-decoration: none;
+    border-bottom: var(--border-width) solid transparent;
+    padding-bottom: 1px;
+    align-self: flex-start;
+    transition: border-color 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .info-link:hover {
+    border-bottom-color: var(--color-title);
+  }
+
+  /* ── Openingstijden ── */
+  .openingstijden {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-1) var(--space-6);
+  }
+
+  .openingstijden dt {
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+  }
+
+  .openingstijden dd {
+    font-size: var(--font-size-body);
+    color: var(--color-title);
+  }
+
+  .openingstijden dd.gesloten {
+    color: var(--color-tertiary);
+  }
+
+  /* ── Afspraak knop ── */
+  .btn-afspraak {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-white);
+    background-color: var(--color-accent);
+    padding: var(--space-4) var(--space-8);
+    border-radius: 9999px;
+    text-align: center;
+    transition: opacity 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .btn-afspraak:hover {
+    opacity: 0.85;
+  }
+
+  /* ── Formulier ── */
+  [hidden] { display: none !important; }
+  .honeypot { display: none; }
+
+  .contact-form-wrapper {
+    padding: 0;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .form-veld {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .form-veld label {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text);
+
+    & span {
+      color: var(--color-tertiary);
+    }
+  }
+
+  .form-veld input,
+  .form-veld textarea {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-body);
+    color: var(--color-title);
+    background-color: var(--color-white);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-3) var(--space-4);
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    appearance: none;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .form-veld input:focus,
+  .form-veld textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+
+  .form-veld textarea {
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.6;
+  }
+
+  .form-veld input::placeholder,
+  .form-veld textarea::placeholder {
+    color: var(--color-tertiary);
+  }
+
+  .btn-verstuur {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-white);
+    background-color: var(--color-accent);
+    border: none;
+    padding: var(--space-4) var(--space-12);
+    border-radius: 9999px;
+    cursor: pointer;
+    margin-top: var(--space-4);
+    align-self: flex-end;
+    transition: opacity 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .btn-verstuur:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .btn-verstuur:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ── Succes / fout ── */
+  .form-succes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-3);
+    padding: var(--space-12) var(--space-8);
+  }
+
+  .succes-titel {
+    font-family: var(--font-tertiary);
+    font-size: var(--font-size-heading-s);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-title);
+  }
+
+  .succes-tekst {
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+    line-height: 1.7;
+    max-width: 40ch;
+  }
+
+  .form-fout {
+    margin-top: var(--space-4);
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+
+    & a {
+      color: var(--color-title);
+    }
+  }
+</style>

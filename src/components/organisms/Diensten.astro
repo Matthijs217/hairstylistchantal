@@ -2,7 +2,7 @@
 import { sanityClient, urlFor } from '../../lib/sanity.js';
 
 const diensten = await sanityClient.fetch<Dienst[]>(`
-  *[_type == "dienst"] | order(volgorde asc) {
+  *[_type == "dienst"] | order(volgorde asc) [0..2] {
     titel,
     beschrijving,
     "slug": slug.current,
