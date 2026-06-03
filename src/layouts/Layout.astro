@@ -4,17 +4,33 @@ import '../styles/stylesheet.css';
 import Header from '../components/organisms/Header.astro';
 import Footer from '../components/organisms/Footer.astro';
 
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Hairstylist Chantal',
+  description = 'Persoonlijke haarsalon in Broek in Waterland. Knippen, kleuren en stylen door Chantal. Maak eenvoudig een afspraak via Treatwell.',
+} = Astro.props;
+
+const pageTitle = title === 'Hairstylist Chantal' ? title : `${title} | Hairstylist Chantal`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="nl">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Hairstylist Chantal</title>
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:locale" content="nl_NL" />
 		<script src="https://widget.treatwell.nl/common/venue-menu/javascript/widget-button.js?v1" is:inline></script>
 	</head>
 	<body>
