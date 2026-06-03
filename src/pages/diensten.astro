@@ -1,0 +1,297 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { sanityClient, urlFor } from '../lib/sanity.js';
+import Prijslijst from '../components/molecules/Prijslijst.astro';
+
+interface Dienst {
+  titel: string;
+  beschrijving: string;
+  slug: string;
+  afbeelding: object;
+  afbeeldingAlt: string | null;
+  prijs: string | null;
+  duur: string | null;
+}
+
+const diensten = await sanityClient.fetch<Dienst[]>(`
+  *[_type == "dienst"] | order(volgorde asc) {
+    titel,
+    beschrijving,
+    "slug": slug.current,
+    afbeelding,
+    "afbeeldingAlt": afbeelding.alt,
+    prijs,
+    duur
+  }
+`);
+---
+
+<Layout
+  title="Diensten"
+  description="Bekijk alle diensten van Hairstylist Chantal: knippen, kleuren, highlights en meer. Persoonlijke aandacht in Broek in Waterland."
+>
+  <section class="diensten-hero">
+    <div class="diensten-hero-content">
+      <p class="label">wat ik doe ~</p>
+      <h1 class="titel">Diensten</h1>
+      <p class="sub">Persoonlijke behandelingen in een rustige salon</p>
+    </div>
+  </section>
+
+  <section class="diensten-lijst">
+    <div class="diensten-content">
+      <ul class="grid">
+        {diensten.map(({ titel, beschrijving, afbeelding, afbeeldingAlt, prijs, duur }) => (
+          <li class="dienst-card">
+            <div class="dienst-afbeelding">
+              <img
+                src={urlFor(afbeelding).width(800).height(500).fit('crop').auto('format').quality(80).url()}
+                alt={afbeeldingAlt ?? titel}
+                width="800"
+                height="500"
+                loading="lazy"
+              />
+            </div>
+            <div class="dienst-tekst">
+              <h2 class="dienst-naam">{titel}</h2>
+              {beschrijving && <p class="dienst-omschrijving">{beschrijving}</p>}
+              {(prijs || duur) && (
+                <div class="dienst-meta">
+                  {prijs && <span class="meta-item">{prijs}</span>}
+                  {duur && <span class="meta-item">{duur}</span>}
+                </div>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <Prijslijst />
+
+  <section class="cta">
+    <div class="cta-content">
+      <p class="cta-label">klaar voor een nieuwe look? ~</p>
+      <h2 class="cta-titel">Maak een afspraak</h2>
+      <p class="cta-sub">Direct online boeken via Treatwell</p>
+      <a
+        href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/"
+        class="btn-afspraak"
+        data-treatwell-booking
+        target="_blank"
+        rel="noopener noreferrer"
+      >Afspraak maken</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ── Hero ── */
+  .diensten-hero {
+    padding-block: var(--space-3);
+    padding-inline: var(--space-8);
+  }
+
+  .diensten-hero-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-2);
+  }
+
+  .label {
+    font-family: var(--font-secondary);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--color-text);
+  }
+
+  .titel {
+    font-size: var(--font-size-heading-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1;
+  }
+
+  .titel::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background-color: var(--color-tertiary);
+    margin: var(--space-4) auto 0;
+  }
+
+  .sub {
+    font-size: var(--font-size-body);
+    font-family: var(--font-tertiary);
+    font-style: italic;
+    color: var(--color-text);
+    margin-top: var(--space-2);
+  }
+
+  /* ── Lijst ── */
+  .diensten-lijst {
+    background-color: var(--color-main);
+    padding-block: var(--space-16);
+    padding-inline: var(--space-8);
+  }
+
+  .diensten-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+  }
+
+  .grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ── Card ── */
+  .dienst-card {
+    display: flex;
+    flex-direction: column;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background-color: var(--color-secondary);
+  }
+
+  .dienst-afbeelding {
+    aspect-ratio: 2 / 1;
+    overflow: hidden;
+  }
+
+  .dienst-afbeelding img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .dienst-card:hover .dienst-afbeelding img {
+    transform: scale(1.03);
+  }
+
+  .dienst-tekst {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .dienst-naam {
+    font-family: var(--font-tertiary);
+    font-size: var(--font-size-heading-m);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-title);
+  }
+
+  .dienst-omschrijving {
+    font-size: var(--font-size-body);
+    font-style: italic;
+    color: var(--color-text);
+    line-height: 1.7;
+    max-width: 56ch;
+  }
+
+  .dienst-meta {
+    display: flex;
+    gap: var(--space-6);
+    margin-top: var(--space-2);
+  }
+
+  .meta-item {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-tertiary);
+  }
+
+  .meta-item:first-child {
+    color: var(--color-accent);
+  }
+
+  /* ── CTA ── */
+  .cta {
+    padding-block: var(--space-24);
+    padding-inline: var(--space-8);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .cta-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+  }
+
+  .cta-label {
+    font-family: var(--font-secondary);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--color-text);
+    margin-bottom: calc(var(--space-2) * -1);
+  }
+
+  .cta-titel {
+    font-size: var(--font-size-heading-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1;
+  }
+
+  .cta-sub {
+    font-size: var(--font-size-body);
+    font-family: var(--font-tertiary);
+    font-style: italic;
+    color: var(--color-text);
+  }
+
+  .btn-afspraak {
+    font-size: var(--font-size-muted);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-white);
+    background-color: var(--color-accent);
+    padding: var(--space-4) var(--space-12);
+    border-radius: 9999px;
+    margin-top: var(--space-4);
+    transition: opacity 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .btn-afspraak:hover {
+    opacity: 0.85;
+  }
+</style>

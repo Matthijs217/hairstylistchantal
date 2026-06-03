@@ -29,6 +29,18 @@ export default {
       options: { hotspot: true },
     },
     {
+      name: 'prijs',
+      title: 'Prijs',
+      type: 'string',
+      description: 'Bijv. "Vanaf €35" of "€45 – €65"',
+    },
+    {
+      name: 'duur',
+      title: 'Duur',
+      type: 'string',
+      description: 'Bijv. "45 min" of "1 – 2 uur"',
+    },
+    {
       name: 'volgorde',
       title: 'Volgorde',
       type: 'number',

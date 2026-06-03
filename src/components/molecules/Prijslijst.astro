@@ -1,0 +1,256 @@
+---
+import { sanityClient } from '../../lib/sanity.js';
+
+interface PrijsItem {
+  label: string;
+  prijs: string;
+  duur: string;
+}
+
+interface Categorie {
+  naam: string;
+  items: PrijsItem[];
+}
+
+const fallback: Categorie[] = [
+  {
+    naam: 'Dames — Wassen, Knippen & Föhnen',
+    items: [
+      { label: 'Kort haar',      prijs: '€35,50', duur: '40 min' },
+      { label: 'Halflang haar',  prijs: '€40,50', duur: '50 min' },
+      { label: 'Lang haar',      prijs: '€47,50', duur: '65 min' },
+    ],
+  },
+  {
+    naam: 'Dames — Wassen, Knippen & Drogen',
+    items: [
+      { label: 'Kort haar', prijs: '€29,50', duur: '35 min' },
+      { label: 'Lang haar', prijs: '€33,50', duur: '45 min' },
+    ],
+  },
+  {
+    naam: 'Dames — Wassen & Föhnen',
+    items: [
+      { label: 'Kort haar',     prijs: '€25,50', duur: '35 min' },
+      { label: 'Halflang haar', prijs: '€30,50', duur: '45 min' },
+      { label: 'Lang haar',     prijs: '€37,50', duur: '60 min' },
+    ],
+  },
+  {
+    naam: 'Heren — Knippen',
+    items: [
+      { label: 'Kort haar', prijs: '€29,50', duur: '30 min' },
+      { label: 'Lang haar', prijs: '€33,50', duur: '40 min' },
+    ],
+  },
+  {
+    naam: 'Kinderen — Knippen (t/m 12 jaar)',
+    items: [
+      { label: 'Knippen', prijs: '€24,50', duur: '30 min' },
+    ],
+  },
+  {
+    naam: 'Kleuren',
+    items: [
+      { label: 'Kleuren met drogen',          prijs: 'v.a. €53,50', duur: '' },
+      { label: 'Kleuren + knippen & drogen',  prijs: 'v.a. €83,–',  duur: '' },
+      { label: 'Kleuren + knippen & föhnen',  prijs: 'v.a. €89,–',  duur: '' },
+    ],
+  },
+  {
+    naam: 'Highlights & Balayage',
+    items: [
+      { label: 'Highlights met toner & drogen', prijs: 'v.a. €40,95',  duur: '' },
+      { label: 'Highlights met toner & föhnen', prijs: 'v.a. €76,45',  duur: '' },
+      { label: 'Balayage met toner & drogen',   prijs: 'v.a. €89,95',  duur: '' },
+      { label: 'Balayage + knippen & föhnen',   prijs: 'v.a. €125,45', duur: '' },
+    ],
+  },
+];
+
+const data = await sanityClient.fetch<{ categorieen: Categorie[] } | null>(`
+  *[_type == "prijslijst" && _id == "prijslijst"][0] {
+    categorieen[] {
+      naam,
+      items[] { label, prijs, duur }
+    }
+  }
+`);
+
+const categorieën: Categorie[] = data?.categorieen?.length ? data.categorieen : fallback;
+---
+
+<section class="prijslijst">
+  <div class="prijslijst-content">
+
+    <header class="prijslijst-header">
+      <p class="label">tarieven ~</p>
+      <h2 class="titel">Prijslijst</h2>
+    </header>
+
+    <div class="categorieën">
+      {categorieën.map(({ naam, items }) => (
+        <div class="categorie">
+          <h3 class="categorie-naam">{naam}</h3>
+          <ul class="items">
+            {items.map(({ label, prijs, duur }) => (
+              <li class="item">
+                <span class="item-label">{label}</span>
+                <span class="item-streep" aria-hidden="true"></span>
+                <span class="item-rechts">
+                  {duur && <span class="item-duur">{duur}</span>}
+                  <span class="item-prijs">{prijs}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .prijslijst {
+    background-color: var(--color-secondary);
+    padding-block: var(--space-12);
+    padding-inline: var(--space-8);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .prijslijst-content {
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  /* ── Header ── */
+  .prijslijst-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .label {
+    font-family: var(--font-secondary);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--color-text);
+  }
+
+  .titel {
+    font-size: var(--font-size-heading-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-title);
+    line-height: 1;
+  }
+
+  .titel::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background-color: var(--color-tertiary);
+    margin: var(--space-4) auto 0;
+  }
+
+  /* ── Grid van categorieën ── */
+  .categorieën {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+
+    @media (min-width: 800px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .categorie {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    background-color: var(--color-main);
+  }
+
+  .categorie-naam {
+    font-family: var(--font-tertiary);
+    font-size: var(--font-size-heading-xs);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-title);
+    padding-bottom: var(--space-3);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  /* ── Items ── */
+  .items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .item-label {
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+  }
+
+  .item-streep {
+    flex: 1;
+    height: 1px;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--color-border) 0,
+      var(--color-border) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    align-self: center;
+    min-width: var(--space-4);
+  }
+
+  .item-rechts {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+
+  .item-duur {
+    font-size: var(--font-size-muted);
+    color: var(--color-tertiary);
+    white-space: nowrap;
+  }
+
+  .item-prijs {
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-title);
+    white-space: nowrap;
+  }
+
+  /* ── Disclaimer ── */
+  .disclaimer {
+    font-size: var(--font-size-muted);
+    font-style: italic;
+    color: var(--color-tertiary);
+    text-align: center;
+  }
+</style>
