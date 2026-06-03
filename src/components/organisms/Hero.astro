@@ -19,7 +19,13 @@
     </div>
 
     <div class="hero-actions">
-      <a href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/" class="btn-primary">Maak een afspraak</a>
+      <a
+        href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/"
+        class="btn-primary"
+        data-treatwell-booking
+        target="_blank"
+        rel="noopener noreferrer"
+      >Maak een afspraak</a>
       <a href="/diensten" class="btn-secondary">Bekijk diensten</a>
     </div>
   </div>
@@ -156,3 +162,12 @@
     opacity: 0.75;
   }
 </style>
+
+<script is:inline>
+  document.querySelectorAll('[data-treatwell-booking]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      wahanda.openOnlineBookingWidget('https://widget.treatwell.nl/salon/523909/menu/');
+    });
+  });
+</script>
