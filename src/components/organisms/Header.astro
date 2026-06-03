@@ -28,7 +28,15 @@ const navLinks = [
     <ul class="nav-right">
       <li><a href="/reviews" aria-current={currentPath === '/reviews' ? 'page' : undefined}>Reviews</a></li>
       <li><a href="/contact" aria-current={currentPath === '/contact' ? 'page' : undefined}>Contact</a></li>
-      <li><a href="/afspraak" class="btn-afspraak" aria-current={currentPath === '/afspraak' ? 'page' : undefined}>Afspraak</a></li>
+      <li>
+        <a
+          href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/"
+          class="btn-afspraak"
+          data-treatwell-booking
+          target="_blank"
+          rel="noopener noreferrer"
+        >Afspraak</a>
+      </li>
     </ul>
 
     <details class="nav-mobile">
@@ -48,7 +56,13 @@ const navLinks = [
             </li>
           ))}
         </ul>
-        <a href="/afspraak" class="btn-afspraak menu-cta">Afspraak</a>
+        <a
+          href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/"
+          class="btn-afspraak menu-cta"
+          data-treatwell-booking
+          target="_blank"
+          rel="noopener noreferrer"
+        >Afspraak</a>
       </div>
     </details>
   </nav>
@@ -66,12 +80,26 @@ const navLinks = [
   nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    position: relative;
     max-width: var(--container-max-width);
     margin-inline: auto;
     padding-inline: var(--space-8);
     padding-block: var(--space-5);
     gap: var(--space-8);
+
+    & > ul {
+      display: none;
+    }
+
+    @media (min-width: 800px) {
+      justify-content: space-between;
+      position: static;
+
+      & > ul {
+        display: flex;
+      }
+    }
   }
 
   ul {
@@ -96,6 +124,10 @@ const navLinks = [
     border-bottom: var(--border-width) solid transparent;
     transition: border-color 0.2s ease, color 0.2s ease;
     white-space: nowrap;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   a:hover,
@@ -145,6 +177,10 @@ const navLinks = [
     border-radius: 9999px;
     border-bottom: none;
     transition: opacity 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   .btn-afspraak:hover {
@@ -155,7 +191,13 @@ const navLinks = [
 
   /* ── Mobile nav ── */
   .nav-mobile {
-    display: none;
+    display: block;
+    position: absolute;
+    right: var(--space-6);
+
+    @media (min-width: 800px) {
+      display: none;
+    }
   }
 
   .hamburger {
@@ -176,6 +218,10 @@ const navLinks = [
     background-color: var(--color-title);
     transition: transform 0.25s ease, opacity 0.25s ease;
     transform-origin: center;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   details[open] .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -188,7 +234,7 @@ const navLinks = [
     top: 0;
     right: 0;
     bottom: 0;
-    width: 50%;
+    width: 70%;
     z-index: 150;
     display: flex;
     flex-direction: column;
@@ -198,6 +244,9 @@ const navLinks = [
     padding-block: var(--space-12);
     background-color: var(--color-secondary);
     border-left: var(--border-width) solid var(--color-border);
+    @media (min-width: 440px) {
+      width: 50%;
+    }
   }
 
   .menu-list {
@@ -227,35 +276,16 @@ const navLinks = [
     padding-block: var(--space-4);
   }
 
-  /* ── Reduced motion toegankelijkheid ── */
-  @media (prefers-reduced-motion: reduce) {
-    .bar,
-    a,
-    .btn-afspraak {
-      transition: none;
-    }
-  }
-
-  /* ── Breakpoints ── */
-  @media (max-width: 800px) {
-    nav {
-      justify-content: center;
-      position: relative;
-    }
-
-    nav > ul {
-      display: none;
-    }
-
-    .nav-mobile {
-      display: block;
-      position: absolute;
-      right: var(--space-6);
-    }
-  }
 </style>
 
 <script is:inline>
+  document.querySelectorAll('[data-treatwell-booking]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      wahanda.openOnlineBookingWidget('https://widget.treatwell.nl/salon/523909/menu/');
+    });
+  });
+
   const details = document.querySelector('.nav-mobile');
 
   document.querySelectorAll('.menu-list a, .menu-cta').forEach((link) => {
