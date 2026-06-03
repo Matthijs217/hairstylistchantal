@@ -1,5 +1,6 @@
 ---
-
+import { Image } from 'astro:assets';
+import salonImg from '../../assets/salon.webp';
 ---
 
 <section class="hero">
@@ -10,11 +11,10 @@
     <p class="hero-description">Een rustige, persoonlijke salon waar tijd is voor jouw haar én een goed gesprek.</p>
 
     <div class="hero-image">
-      <img
-        src="../../../src/assets/salon.webp"
+      <Image
+        src={salonImg}
         alt="Sfeerfoto van de salon"
-        width="300"
-        height="300"
+        loading="eager"
       />
     </div>
 
