@@ -109,19 +109,18 @@
     object-fit: cover;
   }
 
-  /* ── Knoppen ── */
+  /* ── Knoppen (desktop) ── */
   .hero-actions {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: var(--space-2);
+    display: none;
 
     @media (min-width: 640px) {
+      display: flex;
       flex-direction: row;
       width: auto;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: var(--space-2);
     }
   }
 
@@ -165,11 +164,3 @@
   }
 </style>
 
-<script is:inline>
-  document.querySelectorAll('[data-treatwell-booking]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      wahanda.openOnlineBookingWidget('https://widget.treatwell.nl/salon/523909/menu/');
-    });
-  });
-</script>

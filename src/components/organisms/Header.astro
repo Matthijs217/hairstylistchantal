@@ -264,13 +264,6 @@ const navLinks = [
 </style>
 
 <script is:inline>
-  document.querySelectorAll('[data-treatwell-booking]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      wahanda.openOnlineBookingWidget('https://widget.treatwell.nl/salon/523909/menu/');
-    });
-  });
-
   const details = document.querySelector('.nav-mobile');
 
   document.querySelectorAll('.menu-list a, .menu-cta').forEach((link) => {

@@ -40,6 +40,22 @@ const pageTitle = title === 'Hairstylist Chantal' ? title : `${title} | Hairstyl
 				<slot />
 			</main>
 		<Footer />
+		<a
+			href="https://www.treatwell.nl/salon/hairstylist-chantal-oosterlaken/"
+			class="btn-fab"
+			data-treatwell-booking
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label="Maak een afspraak"
+		>Afspraak</a>
+		<script is:inline>
+			document.querySelectorAll('[data-treatwell-booking]').forEach((btn) => {
+				btn.addEventListener('click', (e) => {
+					e.preventDefault();
+					wahanda.openOnlineBookingWidget('https://widget.treatwell.nl/salon/523909/menu/');
+				});
+			});
+		</script>
 	</body>
 </html>
 
@@ -54,5 +70,36 @@ const pageTitle = title === 'Hairstylist Chantal' ? title : `${title} | Hairstyl
 		display: flex;
 		flex-direction: column;
 		min-height: 100vh;
+	}
+
+	.btn-fab {
+		position: fixed;
+		bottom: var(--space-6);
+		right: var(--space-6);
+		z-index: 90;
+		font-size: var(--font-size-body);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--color-white);
+		background-color: var(--color-accent);
+		padding: var(--space-3) var(--space-6);
+		border-radius: 9999px;
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+		transition: opacity 0.2s ease;
+		white-space: nowrap;
+
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
+
+		@media (min-width: 800px) {
+			display: none;
+		}
+	}
+
+	.btn-fab:hover {
+		opacity: 0.85;
 	}
 </style>
