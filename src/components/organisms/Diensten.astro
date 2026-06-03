@@ -1,14 +1,6 @@
 ---
 import { sanityClient, urlFor } from '../../lib/sanity.js';
 
-interface Dienst {
-  titel: string;
-  beschrijving: string;
-  slug: string;
-  afbeelding: object;
-  afbeeldingAlt: string | null;
-}
-
 const diensten = await sanityClient.fetch<Dienst[]>(`
   *[_type == "dienst"] | order(volgorde asc) {
     titel,
