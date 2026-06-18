@@ -140,6 +140,18 @@ const openingstijden = instellingen?.openingstijden?.length
           </div>
 
           <div class="form-veld">
+            <label for="onderwerp">Onderwerp <span aria-hidden="true">*</span></label>
+            <div class="radio-groep" role="group" aria-labelledby="onderwerp">
+              {['Afspraak maken', 'Vragen', 'Overig'].map((optie) => (
+                <label class="radio-label">
+                  <input type="radio" name="onderwerp" value={optie} required />
+                  {optie}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="form-veld">
             <label for="bericht">Bericht <span aria-hidden="true">*</span></label>
             <textarea
               id="bericht"
@@ -176,8 +188,44 @@ const openingstijden = instellingen?.openingstijden?.length
   const succes = document.getElementById('form-succes');
   const fout = document.getElementById('form-fout');
 
+  function markeerFout(el) {
+    el.classList.add('veld-fout');
+  }
+
+  function verwijderFout(el) {
+    el.classList.remove('veld-fout');
+  }
+
+  // Verwijder rode rand zodra gebruiker begint met typen/kiezen
+  form.querySelectorAll('input, textarea').forEach((el) => {
+    el.addEventListener('input', () => verwijderFout(el));
+  });
+  form.querySelectorAll('input[type="radio"]').forEach((el) => {
+    el.addEventListener('change', () => {
+      form.querySelectorAll('.radio-label').forEach((l) => l.classList.remove('veld-fout'));
+    });
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Client-side validatie
+    let geldig = true;
+
+    const naamEl = form.querySelector('[name="naam"]');
+    const emailEl = form.querySelector('[name="email"]');
+    const berichtEl = form.querySelector('[name="bericht"]');
+    const onderwerpGekozen = form.querySelector('[name="onderwerp"]:checked');
+
+    if (!naamEl.value.trim()) { markeerFout(naamEl); geldig = false; }
+    if (!emailEl.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value)) { markeerFout(emailEl); geldig = false; }
+    if (!berichtEl.value.trim()) { markeerFout(berichtEl); geldig = false; }
+    if (!onderwerpGekozen) {
+      form.querySelectorAll('.radio-label').forEach((l) => l.classList.add('veld-fout'));
+      geldig = false;
+    }
+
+    if (!geldig) return;
 
     const btn = form.querySelector('.btn-verstuur');
     const tekst = btn.querySelector('.btn-tekst');
@@ -419,6 +467,16 @@ const openingstijden = instellingen?.openingstijden?.length
     }
   }
 
+  .form-veld input.veld-fout,
+  .form-veld textarea.veld-fout {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 3px color-mix(in srgb, #c0392b 15%, transparent);
+  }
+
+  .radio-label.veld-fout {
+    border-color: #c0392b;
+  }
+
   .form-veld input:focus,
   .form-veld textarea:focus {
     outline: none;
@@ -435,6 +493,47 @@ const openingstijden = instellingen?.openingstijden?.length
   .form-veld input::placeholder,
   .form-veld textarea::placeholder {
     color: var(--color-tertiary);
+  }
+
+  .radio-groep {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .radio-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-title);
+    text-transform: none;
+    letter-spacing: 0;
+    cursor: pointer;
+    padding: var(--space-2) var(--space-4);
+    border: 1.5px solid var(--color-border);
+    border-radius: 9999px;
+    background-color: var(--color-white);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  .radio-label input[type="radio"] {
+    display: none;
+  }
+
+  .radio-label:has(input:checked) {
+    border-color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+  }
+
+  .radio-label:hover {
+    border-color: var(--color-accent);
   }
 
   .btn-verstuur {

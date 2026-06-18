@@ -45,43 +45,9 @@ function formatDatum(datum: string | null) {
   <section class="reviews">
     <div class="reviews-content">
 
-      {recensies.length > 0 ? (
-        <ul class="reviews-grid">
-          {recensies.map(({ naam, tekst, sterren, bron, datum }) => (
-            <li class="review-card">
-              <div class="review-header">
-                <div class="review-avatar" aria-hidden="true">
-                  {naam.charAt(0).toUpperCase()}
-                </div>
-                <div class="review-meta">
-                  <p class="review-naam">{naam}</p>
-                  {datum && <p class="review-datum">{formatDatum(datum)}</p>}
-                </div>
-                <span class={`review-bron review-bron--${bron}`} aria-label={bron === 'google' ? 'Google review' : 'Treatwell review'}>
-                  {bron === 'google' ? 'G' : 'T'}
-                </span>
-              </div>
-              <p class="review-sterren" aria-label={`${sterren} van de 5 sterren`}>
-                {sterrenLabel(sterren)}
-              </p>
-              <p class="review-tekst">"{tekst}"</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="geen-reviews">Er zijn nog geen reviews toegevoegd.</p>
-      )}
-
-      <div class="reviews-cta">
-        <p class="reviews-cta-tekst">Zelf een review achterlaten?</p>
-        <a
-          href="https://maps.app.goo.gl/wJcjPiJYuJGLZqR48"
-          class="btn-google"
-          target="_blank"
-          rel="noopener noreferrer"
-        >Schrijf een Google review</a>
-      </div>
-
+    <script src="https://elfsightcdn.com/platform.js" async></script>
+    <div class="elfsight-app-e6b02669-ddb7-4430-8128-b6555e02ca70" data-elfsight-app-lazy></div>
+      
     </div>
   </section>
 

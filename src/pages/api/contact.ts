@@ -9,17 +9,20 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
 
-    const naam     = String(data.naam     ?? '').trim();
-    const email    = String(data.email    ?? '').trim();
-    const telefoon = String(data.telefoon ?? '').trim();
-    const bericht  = String(data.bericht  ?? '').trim();
-    const honeypot = String(data.bedrijf  ?? '').trim();
+    const naam      = String(data.naam      ?? '').trim();
+    const email     = String(data.email     ?? '').trim();
+    const telefoon  = String(data.telefoon  ?? '').trim();
+    const bericht   = String(data.bericht   ?? '').trim();
+    const onderwerp = String(data.onderwerp ?? '').trim();
+    const honeypot  = String(data.bedrijf   ?? '').trim();
+
+    const geldigeOnderwerpen = ['Afspraak maken', 'Vragen', 'Overig'];
 
     if (honeypot) {
       return new Response(JSON.stringify({ ok: true }), { status: 200 });
     }
 
-    if (!naam || !email || !bericht) {
+    if (!naam || !email || !bericht || !geldigeOnderwerpen.includes(onderwerp)) {
       return new Response(JSON.stringify({ ok: false, error: 'Verplichte velden ontbreken.' }), { status: 400 });
     }
 
@@ -52,7 +55,7 @@ export const POST: APIRoute = async ({ request }) => {
       from:    'Contactformulier <noreply@hairstylistchantal.nl>',
       to:      ['info@hairstylistchantal.nl'],
       replyTo: `${naam} <${email}>`,
-      subject: `Nieuw bericht van ${naam}`,
+      subject: `${onderwerp} — ${naam}`,
       text: [
         `Naam:     ${naam}`,
         `E-mail:   ${email}`,

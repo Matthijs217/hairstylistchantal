@@ -1,6 +1,10 @@
 ---
 import { sanityClient, urlFor } from '../../lib/sanity.js';
 
+interface Foto {
+  afbeelding: object;
+  alt: string;
+}
 
 const fotos = await sanityClient.fetch<Foto[]>(`
   *[_type == "foto"] | order(datum desc) [0..3] {
@@ -148,3 +152,4 @@ const fotos = await sanityClient.fetch<Foto[]>(`
     border-bottom-color: var(--color-title);
   }
 </style>
+

@@ -5,6 +5,13 @@ export default {
   __experimental_actions: ['update', 'publish'],
   fields: [
     {
+      name: 'disclaimer',
+      title: 'Disclaimer / opmerkingen',
+      type: 'array',
+      description: 'Bullet points die onder de prijslijst worden getoond, bijv. "Prijzen zijn inclusief BTW" of "Afwijkende prijzen mogelijk bij lang haar".',
+      of: [{ type: 'string' }],
+    },
+    {
       name: 'categorieen',
       title: 'Categorieën',
       type: 'array',

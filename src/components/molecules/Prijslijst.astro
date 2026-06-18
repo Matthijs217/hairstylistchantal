@@ -68,8 +68,9 @@ const fallback: Categorie[] = [
   },
 ];
 
-const data = await sanityClient.fetch<{ categorieen: Categorie[] } | null>(`
+const data = await sanityClient.fetch<{ categorieen: Categorie[]; disclaimer?: string[] } | null>(`
   *[_type == "prijslijst" && _id == "prijslijst"][0] {
+    disclaimer,
     categorieen[] {
       naam,
       items[] { label, prijs, duur }
@@ -78,6 +79,7 @@ const data = await sanityClient.fetch<{ categorieen: Categorie[] } | null>(`
 `);
 
 const categorieën: Categorie[] = data?.categorieen?.length ? data.categorieen : fallback;
+const disclaimer: string[] = data?.disclaimer ?? [];
 ---
 
 <section class="prijslijst">
@@ -107,6 +109,14 @@ const categorieën: Categorie[] = data?.categorieen?.length ? data.categorieen :
         </div>
       ))}
     </div>
+
+    {disclaimer.length > 0 && (
+      <ul class="disclaimer">
+        {disclaimer.map((regel) => (
+          <li>{regel}</li>
+        ))}
+      </ul>
+    )}
   </div>
 </section>
 

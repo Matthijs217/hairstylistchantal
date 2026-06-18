@@ -16,6 +16,13 @@ export default {
       type: 'string',
     },
     {
+      name: 'parkeertip',
+      title: 'Parkeertip / bezoekinfo',
+      type: 'text',
+      rows: 3,
+      description: 'Optionele tip voor bezoekers, bijv. over parkeren of de route naar de deur. Wordt getoond onder de "Route plannen" knop.',
+    },
+    {
       name: 'openingstijden',
       title: 'Openingstijden',
       type: 'array',
