@@ -23,9 +23,10 @@ const fallback: Openingstijd[] = [
   { dag: 'Zondag',    tijd: 'Gesloten' },
 ];
 
-const instellingen = await sanityClient.fetch<{ openingstijden: Openingstijd[]; parkeertip?: string } | null>(`
+const instellingen = await sanityClient.fetch<{ openingstijden: Openingstijd[]; openingstijdenNotitie?: string; parkeertip?: string } | null>(`
   *[_type == "instellingen" && _id == "instellingen"][0] {
     openingstijden,
+    openingstijdenNotitie,
     parkeertip
   }
 `);
@@ -34,6 +35,7 @@ const openingstijden: Openingstijd[] = instellingen?.openingstijden?.length
   ? instellingen.openingstijden
   : fallback;
 
+const openingstijdenNotitie = instellingen?.openingstijdenNotitie ?? '';
 const parkeertip = instellingen?.parkeertip ?? '';
 ---
 
@@ -61,6 +63,10 @@ const parkeertip = instellingen?.parkeertip ?? '';
           </>
         ))}
       </dl>
+
+      {openingstijdenNotitie && (
+        <p class="openingstijden-notitie">{openingstijdenNotitie}</p>
+      )}
 
       <a href={adres.mapsUrl} class="btn-route" target="_blank" rel="noopener noreferrer">
         Route plannen
@@ -165,6 +171,13 @@ const parkeertip = instellingen?.parkeertip ?? '';
 
   .openingstijden dd.gesloten {
     color: var(--color-tertiary);
+  }
+
+  .openingstijden-notitie {
+    font-size: var(--font-size-muted);
+    font-style: italic;
+    color: var(--color-tertiary);
+    line-height: 1.6;
   }
 
   /* ── Knop ── */

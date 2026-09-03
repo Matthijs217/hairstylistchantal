@@ -50,6 +50,13 @@ export default {
         },
       ],
     },
+    {
+      name: 'openingstijdenNotitie',
+      title: 'Berichtje bij openingstijden',
+      type: 'text',
+      rows: 2,
+      description: 'Optioneel berichtje onder de openingstijden, bijv. "Wilt u \'s avonds boeken? Bel dan even."',
+    },
   ],
   preview: {
     select: {},

@@ -11,11 +11,12 @@ interface Instellingen {
   telefoon: string | null;
   email: string | null;
   openingstijden: Openingstijd[] | null;
+  openingstijdenNotitie: string | null;
 }
 
 const instellingen = await sanityClient.fetch<Instellingen | null>(`
   *[_type == "instellingen" && _id == "instellingen"][0] {
-    telefoon, email, openingstijden
+    telefoon, email, openingstijden, openingstijdenNotitie
   }
 `);
 
@@ -35,6 +36,8 @@ const fallbackTijden: Openingstijd[] = [
 const openingstijden = instellingen?.openingstijden?.length
   ? instellingen.openingstijden
   : fallbackTijden;
+
+const openingstijdenNotitie = instellingen?.openingstijdenNotitie ?? '';
 
 ---
 
@@ -84,6 +87,9 @@ const openingstijden = instellingen?.openingstijden?.length
               </>
             ))}
           </dl>
+          {openingstijdenNotitie && (
+            <p class="openingstijden-notitie">{openingstijdenNotitie}</p>
+          )}
         </div>
 
         <a
@@ -391,6 +397,14 @@ const openingstijden = instellingen?.openingstijden?.length
 
   .openingstijden dd.gesloten {
     color: var(--color-tertiary);
+  }
+
+  .openingstijden-notitie {
+    font-size: var(--font-size-muted);
+    font-style: italic;
+    color: var(--color-tertiary);
+    line-height: 1.6;
+    margin-top: var(--space-2);
   }
 
   /* ── Afspraak knop ── */
